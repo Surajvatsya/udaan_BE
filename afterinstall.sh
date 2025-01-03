@@ -10,7 +10,7 @@ sudo yum update -y
 sudo yum install -y nodejs npm
 
 # (Optional) Install PM2 globally
-# sudo npm install -g pm2
+sudo npm install -g pm2
 
 # If your Node.js project is in this directory, install dependencies
 npm install
