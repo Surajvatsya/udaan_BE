@@ -2,21 +2,14 @@ const express = require('express');
 const router = express.Router();
 const leadController = require('../controllers/restaurantController');
 
-
+// Specific routes should come before parameterized routes
+router.get('/revenue_contribution', leadController.getRevenueContribution);
 router.post('/', leadController.createRestaurant);
-
-
-router.get('/', leadController.getAllRestaurants);
 router.get('/stats', leadController.getAllLeadsData);
-
+router.get('/data', leadController.getRestaurantStats);
+router.get('/perf', leadController.getAccountPerformanceStats);
+router.get('/', leadController.getAllRestaurants);
 router.get('/:lead_id', leadController.getRestaurantById);
-
-router.get('/:lead_status', leadController.getRestaurantsByLeadStatus);
-
-
-// router.put('/:lead_id', leadController.updateLeadById);
-
-
-// router.delete('/:lead_id', leadController.deleteLeadById);
+router.get('/status/:lead_status', leadController.getRestaurantsByLeadStatus);
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const Order = require('../models/Order');
 const Item = require('../models/Item');
 const sequelize = require('../config/db');
-
+const { Op } = require('sequelize');
 
 Order.hasMany(Item, { foreignKey: 'order_id' });
 Item.belongsTo(Order, { foreignKey: 'order_id' });
@@ -156,6 +156,164 @@ const getOrdersByRId = async (req, res) => {
       throw new Error(`Failed to delete order: ${error.message}`);
     }
   };
+
+
+
+const calculatePercentageChange = (current, previous) => {
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return ((current - previous) / previous) * 100;
+};
+
+
+const calculateAOV = (orders = []) => {
+  if (!Array.isArray(orders) || orders.length === 0) {
+    return 0; 
+  }
+
+  // console.log("Calculating AOV...", orders);
+
+  return (
+    orders.reduce((sum, order) => {
+      // console.log("order.Items", order.Items);
+      if (!order.Items || order.Items.length === 0) return sum;
+      const orderValue = order.Items.reduce(
+        (itemSum, item) => itemSum + item.price * item.quantity,
+        0
+      );
+      return sum + orderValue;
+    }, 0) / orders.length
+  );
+};
+
+
+const getOrderStats = async (req, res) => {
+  const { days } = req.query; 
+  const daysInt = parseInt(days, 10);
+
+  if (isNaN(daysInt) || daysInt <= 0) {
+    return res.status(400).json({ error: 'Invalid number of days provided' });
+  }
+
+  try {
+
+    const now = new Date();
+    const currentPeriodStart = new Date(now.getTime() - daysInt * 24 * 60 * 60 * 1000); // Current period
+    const previousPeriodStart = new Date(currentPeriodStart.getTime() - daysInt * 24 * 60 * 60 * 1000); // Previous period
+
+
+    const currentOrders = await Order.findAll({
+      where: {
+        order_date: {
+          [Op.between]: [currentPeriodStart, now],
+        },
+      },
+      include: [
+        {
+          model: Item, 
+          attributes: ['price', 'quantity'],
+        },
+      ],
+    });
+
+
+    // console.log("currentOrders", currentOrders);
+
+
+    const previousOrders = await Order.findAll({
+      where: {
+        order_date: {
+          [Op.between]: [previousPeriodStart, currentPeriodStart],
+        },
+      },
+      include: [
+        {
+          model: Item,
+          attributes: ['price', 'quantity'],
+        },
+      ],
+    });
+
+    console.log("previousOrders", previousOrders);
+
+
+
+    const currentTotalOrders = currentOrders.length;
+    const previousTotalOrders = previousOrders.length;
+
+
+    const totalOrderChange = calculatePercentageChange(currentTotalOrders, previousTotalOrders);
+
+
+
+
+
+    const currentAOV = calculateAOV(currentOrders);
+    console.log("currentAOV", currentAOV);
+
+    const previousAOV = calculateAOV(previousOrders);
+    console.log("previousAOV", previousAOV);
+
+
+
+    const aovChange = calculatePercentageChange(currentAOV, previousAOV);
+
+
+    return res.json({
+      current_period: {
+        total_orders: currentTotalOrders,
+        average_order_value: currentAOV.toFixed(2),
+      },
+      previous_period: {
+        total_orders: previousTotalOrders,
+        average_order_value: previousAOV.toFixed(2),
+      },
+      changes: {
+        total_order_percentage_change: totalOrderChange.toFixed(2),
+        average_order_value_percentage_change: aovChange.toFixed(2),
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching order stats:', error);
+    return res.status(500).json({ error: 'Failed to fetch order stats' });
+  }
+};
+
+const getOrderTrends = async (req, res) => {
+  try {
+    const now = new Date();
+    const { days } = req.query;
+    const daysAsNumber = parseInt(days, 10) || 30; // Default to last 30 days if not specified
+    const startDate = new Date(now.setDate(now.getDate() - daysAsNumber));
+
+
+    const orders = await Order.findAll({
+      attributes: [
+        [sequelize.fn('DATE', sequelize.col('order_date')), 'date'],
+        [sequelize.fn('COUNT', sequelize.col('order_id')), 'count'],
+      ],
+      where: {
+        order_date: {
+          [Op.gte]: startDate,
+        },
+      },
+      group: [sequelize.fn('DATE', sequelize.col('order_date'))],
+      order: [[sequelize.fn('DATE', sequelize.col('order_date')), 'ASC']],
+    });
+
+
+    const trends = orders.map(order => ({
+      date: order.getDataValue('date'),
+      count: parseInt(order.getDataValue('count'), 10),
+    }));
+
+    res.json(trends);
+  } catch (error) {
+    console.error('Error fetching order trends:', error);
+    res.status(500).json({ error: 'Failed to fetch order trends' });
+  }
+};
+
+
   
   module.exports = {
     Order,
@@ -166,5 +324,7 @@ const getOrdersByRId = async (req, res) => {
     deleteOrder,
     getOrdersCountAndDateByRId,
     getOrdersByRId,
+    getOrderStats,
+    getOrderTrends,
   };
   
