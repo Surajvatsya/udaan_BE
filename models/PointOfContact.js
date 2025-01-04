@@ -1,9 +1,8 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
-const Restaurant = require('../models/Restaurant'); 
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/db");
+const Restaurant = require("../models/Restaurant");
 
-
-const PointOfContact = sequelize.define('point_of_contact', {
+const PointOfContact = sequelize.define("point_of_contact", {
   poc_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -14,9 +13,9 @@ const PointOfContact = sequelize.define('point_of_contact', {
     allowNull: false,
     references: {
       model: Restaurant,
-      key: 'restaurant_id',
+      key: "restaurant_id",
     },
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   },
   name: {
     type: DataTypes.STRING,

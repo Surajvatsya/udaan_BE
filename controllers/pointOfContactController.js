@@ -1,5 +1,4 @@
-const PointOfContact = require('../models/PointOfContact');
-
+const PointOfContact = require("../models/PointOfContact");
 
 const createPointOfContact = async (req, res) => {
   try {
@@ -11,46 +10,44 @@ const createPointOfContact = async (req, res) => {
       phone: data.phone,
       email: data.email,
     });
-    res.status(201).json(poc); 
+    res.status(201).json(poc);
   } catch (error) {
-    console.error('Error creating Point of Contact:', error);
-    res.status(500).json({ error: 'Internal Server Error' }); 
+    console.error("Error creating Point of Contact:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 const getAllPointsOfContactByRId = async (req, res) => {
   try {
-    const rid = req.params.rId;  
+    const rid = req.params.rId;
     const pointsOfContact = await PointOfContact.findAll({
-      where: { restaurant_id: rid }, 
+      where: { restaurant_id: rid },
     });
-    res.status(201).json(pointsOfContact); 
-
+    res.status(201).json(pointsOfContact);
   } catch (error) {
-    console.error('Error fetching Points of Contact:', error);
-    res.status(500).json({ error: 'Internal Server Error' }); 
+    console.error("Error fetching Points of Contact:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 // Read a single Point of Contact by ID
 const getPointOfContactById = async (req, res) => {
   try {
-    const id = req.params.poc_id;  // Extract id from the request parameters
+    const id = req.params.poc_id; 
     const poc = await PointOfContact.findByPk(id);
     if (!poc) throw new Error(`Point of Contact with ID ${id} not found`);
-    res.status(201).json(poc); 
-
+    res.status(201).json(poc);
   } catch (error) {
-    console.error('Error fetching Point of Contact:', error);
-    res.status(500).json({ error: 'Internal Server Error' }); 
+    console.error("Error fetching Point of Contact:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 const getPointOfContactByRoleAndId = async (req, res) => {
   try {
-    const { role, id } = req.params; // Extract role and id from the request parameters
+    const { role, id } = req.params; 
 
-    // Assuming PointOfContact is your Sequelize model for the contacts table
+
     const pointOfContact = await PointOfContact.findOne({
       where: {
         role: role,
@@ -59,16 +56,15 @@ const getPointOfContactByRoleAndId = async (req, res) => {
     });
 
     if (!pointOfContact) {
-      throw new Error('Point of Contact not found');
+      throw new Error("Point of Contact not found");
     }
 
     res.status(200).json(pointOfContact);
   } catch (error) {
-    console.error('Error fetching Point of Contact by role and ID:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error fetching Point of Contact by role and ID:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 // Update a Point of Contact by ID
 const updatePointOfContact = async (id, data) => {
@@ -85,21 +81,22 @@ const updatePointOfContact = async (id, data) => {
     });
     return updatedPoc;
   } catch (error) {
-    console.error('Error updating Point of Contact:', error);
+    console.error("Error updating Point of Contact:", error);
     throw error;
   }
 };
 
-// Delete a Point of Contact by ID
+
 const deletePointOfContact = async (id) => {
   try {
     const deletedCount = await PointOfContact.destroy({
       where: { poc_id: id },
     });
-    if (deletedCount === 0) throw new Error(`Point of Contact with ID ${id} not found`);
+    if (deletedCount === 0)
+      throw new Error(`Point of Contact with ID ${id} not found`);
     return { message: `Point of Contact with ID ${id} deleted successfully` };
   } catch (error) {
-    console.error('Error deleting Point of Contact:', error);
+    console.error("Error deleting Point of Contact:", error);
     throw error;
   }
 };
@@ -110,5 +107,5 @@ module.exports = {
   getPointOfContactById,
   updatePointOfContact,
   deletePointOfContact,
-  getPointOfContactByRoleAndId
+  getPointOfContactByRoleAndId,
 };

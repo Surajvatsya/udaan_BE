@@ -1,8 +1,8 @@
 module.exports = {
-    apps: [
-      {
-        script: "node server.js",
-        watch: ".",
-      },
-    ],
-  };
+  apps: [
+    {
+      script: "node server.js",
+      watch: ".",
+    },
+  ],
+};

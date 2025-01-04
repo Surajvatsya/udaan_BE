@@ -1,10 +1,9 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
-const Restaurant = require('../models/Restaurant'); 
-const PointOfContact = require('../models/PointOfContact'); 
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/db");
+const Restaurant = require("../models/Restaurant");
+const PointOfContact = require("../models/PointOfContact");
 
-
-const Interaction = sequelize.define('interaction', {
+const Interaction = sequelize.define("interaction", {
   interaction_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -15,22 +14,26 @@ const Interaction = sequelize.define('interaction', {
     allowNull: false,
     references: {
       model: Restaurant,
-      key: 'restaurant_id',
+      key: "restaurant_id",
     },
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   },
   poc_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
       model: PointOfContact,
-      key: 'poc_id',
+      key: "poc_id",
     },
-    onDelete: 'SET NULL',
+    onDelete: "SET NULL",
   },
   interaction_type: {
     type: DataTypes.STRING,
     allowNull: true,
+  },
+  interaction_title: {
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   details: {
     type: DataTypes.TEXT,
@@ -51,5 +54,3 @@ const Interaction = sequelize.define('interaction', {
 });
 
 module.exports = Interaction;
-
-

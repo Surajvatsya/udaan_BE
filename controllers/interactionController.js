@@ -1,26 +1,22 @@
-const { Op } = require('sequelize');
-const Restaurant = require('../models/Restaurant');
-const PointOfContact = require('../models/PointOfContact');
-const Interaction = require('../models/Interaction');
+const { Op } = require("sequelize");
+const Restaurant = require("../models/Restaurant");
+const PointOfContact = require("../models/PointOfContact");
+const Interaction = require("../models/Interaction");
 
 Interaction.belongsTo(PointOfContact, {
-  foreignKey: 'poc_id'
+  foreignKey: "poc_id",
 });
 Interaction.belongsTo(Restaurant, {
-  foreignKey: 'restaurant_id'
+  foreignKey: "restaurant_id",
 });
 
-
-async function getAllCalls(req, res)  {
-
-
+async function getAllCalls(req, res) {
   const { fromDate, toDate } = req.query;
 
   console.log("fromDate", fromDate);
   console.log("toDate", toDate);
 
   try {
-
     const from = fromDate ? new Date(fromDate) : null;
     const to = toDate ? new Date(toDate) : null;
     const dateCondition = {
@@ -31,26 +27,22 @@ async function getAllCalls(req, res)  {
     };
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0); 
-
+    today.setHours(0, 0, 0, 0);
 
     const interactions = await Interaction.findAll({
       where: dateCondition,
       include: [
         {
           model: PointOfContact,
-          attributes: ['name', 'phone'],
+          attributes: ["name", "phone"],
         },
         {
           model: Restaurant,
-          attributes: ['name'],
+          attributes: ["name"],
         },
       ],
-      attributes: ['interaction_date', 'follow_up_date', 'details', 'outcome'],
+      attributes: ["interaction_date", "follow_up_date", "details", "outcome"],
     });
-
-
-
 
     const overdueCalls = [];
     const todaysCalls = [];
@@ -58,7 +50,6 @@ async function getAllCalls(req, res)  {
 
     interactions.forEach((interaction) => {
       console.log(" interaction1 ", interaction);
-      console.log(" interaction2", interaction);
 
       const followUpDate = new Date(interaction.follow_up_date);
 
@@ -71,11 +62,10 @@ async function getAllCalls(req, res)  {
       }
     });
 
-
     const formatInteraction = (interaction) => ({
-      poc_name: interaction.PointOfContact?.poc_name,
-      poc_contact: interaction.PointOfContact?.poc_contact,
-      restaurant_name: interaction.Restaurant?.name,
+      poc_name: interaction.point_of_contact?.name,
+      poc_contact: interaction.point_of_contact?.phone,
+      restaurant_name: interaction.restaurant?.name,
       follow_up_date: interaction.follow_up_date,
       last_call_details: interaction.details,
       last_call_outcome: interaction.outcome,
@@ -87,44 +77,40 @@ async function getAllCalls(req, res)  {
       upcomingCalls: upcomingCalls.map(formatInteraction),
     });
   } catch (err) {
-    console.error('Error fetching interactions:', err);
-    res.status(500).json({ error: 'Failed to fetch interactions' });
+    console.error("Error fetching interactions:", err);
+    res.status(500).json({ error: "Failed to fetch interactions" });
   }
-};
-
-
+}
 
 async function createInteraction(req, res) {
   try {
     const data = req.body;
     const interaction = await Interaction.create(data);
-    console.log('Interaction created:', interaction);
+    console.log("Interaction created:", interaction);
     res.status(201).json(interaction);
   } catch (error) {
-    console.error('Error creating interaction:', error);
-    res.status(500).json({ error: 'Internal Server Error' }); 
+    console.error("Error creating interaction:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }
 
-// Read (Get) all Interactions
 async function getAllInteractions(req, res) {
   try {
     const interactions = await Interaction.findAll();
-    console.log('All interactions:', interactions);
+    console.log("All interactions:", interactions);
     res.status(201).json(interactions);
   } catch (error) {
-    console.error('Error fetching interactions:', error);
-    res.status(500).json({ error: 'Internal Server Error' }); 
+    console.error("Error fetching interactions:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }
-async function todayFollowup(req, res){
+async function todayFollowup(req, res) {
   try {
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
-
 
     const todaysCallsCount = await Interaction.count({
       where: {
@@ -134,14 +120,13 @@ async function todayFollowup(req, res){
       },
     });
 
-
     res.status(200).json({
       todaysCallsCount,
     });
   } catch (error) {
-    console.error('Error fetching today\'s calls count:', error);
+    console.error("Error fetching today's calls count:", error);
     res.status(500).json({
-      message: 'Error fetching today\'s calls count',
+      message: "Error fetching today's calls count",
       error: error.message,
     });
   }
@@ -151,14 +136,14 @@ async function getInteractionById(interaction_id) {
   try {
     const interaction = await Interaction.findByPk(interaction_id);
     if (interaction) {
-      console.log('Interaction found:', interaction);
+      console.log("Interaction found:", interaction);
       return interaction;
     } else {
-      console.log('Interaction not found');
+      console.log("Interaction not found");
       return null;
     }
   } catch (error) {
-    console.error('Error fetching interaction:', error);
+    console.error("Error fetching interaction:", error);
     throw error;
   }
 }
@@ -169,34 +154,34 @@ async function getInteractionByRestaureantId(req, res) {
   try {
     const interactions = await Interaction.findAll({
       where: { restaurant_id },
-      order: [['createdAt', 'DESC']], // Sort by createdAt in descending order
+      order: [["createdAt", "DESC"]], 
     });
 
     res.status(200).json(interactions);
   } catch (error) {
-    console.error('Error fetching interactions:', error);
-    res.status(500).json({ message: 'Error fetching interactions', error: error.message });
+    console.error("Error fetching interactions:", error);
+    res
+      .status(500)
+      .json({ message: "Error fetching interactions", error: error.message });
   }
-};
-
+}
 
 async function updateInteraction(interaction_id, updatedData) {
   try {
     const interaction = await Interaction.findByPk(interaction_id);
     if (interaction) {
       await interaction.update(updatedData);
-      console.log('Interaction updated:', interaction);
+      console.log("Interaction updated:", interaction);
       return interaction;
     } else {
-      console.log('Interaction not found');
+      console.log("Interaction not found");
       return null;
     }
   } catch (error) {
-    console.error('Error updating interaction:', error);
+    console.error("Error updating interaction:", error);
     throw error;
   }
 }
-
 
 async function deleteInteraction(interaction_id) {
   try {
@@ -204,11 +189,11 @@ async function deleteInteraction(interaction_id) {
     if (result) {
       console.log(`Interaction with ID ${interaction_id} deleted.`);
     } else {
-      console.log('Interaction not found');
+      console.log("Interaction not found");
     }
     return result;
   } catch (error) {
-    console.error('Error deleting interaction:', error);
+    console.error("Error deleting interaction:", error);
     throw error;
   }
 }
@@ -221,7 +206,5 @@ module.exports = {
   deleteInteraction,
   getInteractionByRestaureantId,
   todayFollowup,
-  getAllCalls
+  getAllCalls,
 };
-
-

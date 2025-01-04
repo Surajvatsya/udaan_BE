@@ -1,7 +1,7 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/db");
 
-const Restaurant = sequelize.define('restaurant', {
+const Restaurant = sequelize.define("restaurant", {
   restaurant_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -21,16 +21,8 @@ const Restaurant = sequelize.define('restaurant', {
   },
   lead_status: {
     type: DataTypes.STRING,
-    defaultValue: 'New',
+    defaultValue: "New",
     allowNull: false,
-  },
-  notes: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  call_frequency: {
-    type: DataTypes.STRING,
-    allowNull: true,
   },
   created_at: {
     type: DataTypes.DATE,

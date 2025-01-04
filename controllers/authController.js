@@ -1,15 +1,13 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-require('dotenv').config();
+require("dotenv").config();
 
 const signUp = async (req, res) => {
   const { name, email, password, role } = req.body;
 
   try {
-
     const hashedPassword = await bcrypt.hash(password, 10);
-
 
     const user = await User.create({
       name,
@@ -30,11 +28,10 @@ const signUp = async (req, res) => {
       },
     );
 
-
     res.status(201).json({
       message: "Key Manager registered successfully",
       user,
-      token
+      token,
     });
   } catch (error) {
     console.error("Error while registering KM:", error);
@@ -44,23 +41,22 @@ const signUp = async (req, res) => {
   }
 };
 
-
 const signIn = async (req, res, next) => {
   try {
-
     const user = await User.findOne({ where: { email: req.body.email } });
 
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
 
-
-    const isPasswordMatch = await bcrypt.compare(req.body.password, user.password);
+    const isPasswordMatch = await bcrypt.compare(
+      req.body.password,
+      user.password,
+    );
 
     if (!isPasswordMatch) {
       return res.status(401).json({ msg: "Password matching failed" });
     }
-
 
     const token = jwt.sign(
       {
@@ -69,9 +65,8 @@ const signIn = async (req, res, next) => {
         role: user.role,
       },
       process.env.JWT_TOKEN,
-      { expiresIn: "72h" }
+      { expiresIn: "72h" },
     );
-
 
     res.status(200).json({
       userName: user.userName,
@@ -84,7 +79,6 @@ const signIn = async (req, res, next) => {
     res.status(500).json({ error: "An error occurred during sign-in" });
   }
 };
-
 
 module.exports = {
   signUp,
