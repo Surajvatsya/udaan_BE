@@ -1,18 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const interactionController = require('../controllers/interactionController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 
-router.post('/', interactionController.createInteraction);
+router.post('/', authMiddleware, interactionController.createInteraction);
 
 
-router.get('/all', interactionController.getAllInteractions);
-router.get('/today', interactionController.todayFollowup);
+router.get('/all', authMiddleware, interactionController.getAllInteractions);
+router.get('/today', authMiddleware, interactionController.todayFollowup);
 
 
 // router.get('/:interaction_id', interactionController.getInteractionById);
-router.get('/:restaurant_id', interactionController.getInteractionByRestaureantId);
-router.get('/', interactionController.getAllCalls);
+router.get('/:restaurant_id',authMiddleware,  interactionController.getInteractionByRestaureantId);
+router.get('/',authMiddleware, interactionController.getAllCalls);
 
 
 

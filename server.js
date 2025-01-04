@@ -7,6 +7,7 @@ const leadRoutes = require('./routes/leadRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const interactionRoutes = require('./routes/interactionRoutes');
+const authRoutes = require('./routes/authRoutes');
 // const performanceRoutes = require('./routes/performanceRoutes');
 // const authMiddleware = require('./middlewares/authMiddleware');
 
@@ -29,6 +30,7 @@ app.use('/api/leads', leadRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/interactions', interactionRoutes);
+app.use('/api/auth', authRoutes);
 // app.use('/api/performance', performanceRoutes);
 
 
@@ -40,9 +42,11 @@ app.use((err, req, res, next) => {
 
 sequelize.sync()
   .then(() => {
-    console.log('Database synced');
+    console.log('Database synced successfully');
   })
-  .catch((err) => console.error('Error syncing database:', err));
+  .catch((err) => {
+    console.error('Error syncing database:', err);
+  });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

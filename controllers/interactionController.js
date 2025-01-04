@@ -1,7 +1,7 @@
-const Interaction = require('../models/Interaction');
 const { Op } = require('sequelize');
-const PointOfContact = require('../models/PointOfContact');
 const Restaurant = require('../models/Restaurant');
+const PointOfContact = require('../models/PointOfContact');
+const Interaction = require('../models/Interaction');
 
 Interaction.belongsTo(PointOfContact, {
   foreignKey: 'poc_id'
