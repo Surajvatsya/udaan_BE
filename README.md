@@ -8,9 +8,8 @@ This repository contains a **Lead Management System** designed for Key Account M
 2. [System Requirements](#system-requirements)  
 3. [Installation](#installation)  
 4. [Running the Application](#running-the-application)  
-5. [Test Execution Guide](#test-execution-guide)  
-6. [API Documentation](#api-documentation)  
-7. [Sample Usage Examples](#sample-usage-examples)
+5. [API Documentation](#api-documentation)  
+6. [Sample Usage Examples](#sample-usage-examples)
 
 ---
 
@@ -100,59 +99,351 @@ Additionally, ensure you have:
      ```
 
 ---
+## Directory Structure
 
-## Test Execution Guide
+<img width="418" alt="image" src="https://github.com/user-attachments/assets/ec3b89e4-7ecb-4a9c-9c0d-c7d1431b8c35" />
 
-If tests are included in the repository:
 
-1. **Install dev dependencies** (if not already done):
+
+## Running Instructions
+
+1. **Start the development server**:
+
    ```bash
-   npm install
+   npm start
    ```
-2. **Run tests**:
-   ```bash
-   npm test
-   ```
-3. **View test results** in the console.  
 
-> **Note**: If you have no tests set up yet, consider adding them with a framework like **Jest** or **Mocha**.
+2. **Access the application**:
+
+   Open your browser and navigate to `http://localhost:3000` to use the application.
 
 ---
+## Directory Structure
 
 ## API Documentation
 
-Below is a high-level overview of the main endpoints. Adjust paths/methods as needed based on your actual code.
+## 🔐 **Authentication APIs**
 
-1. **Restaurants / Leads**  
-   - **GET** `/api/restaurants` – Retrieves a list of restaurant leads.  
-   - **POST** `/api/restaurants` – Creates a new restaurant lead.  
-   - **GET** `/api/restaurants/:id` – Fetches details of a single restaurant.  
-   - **PUT** `/api/restaurants/:id` – Updates a restaurant’s info/status.  
-   - **DELETE** `/api/restaurants/:id` – Deletes a restaurant lead.
+### **POST /auth/signup**
 
-2. **Contacts**  
-   - **GET** `/api/contacts` – Retrieves a list of contacts.  
-   - **POST** `/api/contacts` – Creates a new contact for a restaurant.  
-   - **GET** `/api/contacts/:id` – Gets a contact’s info.  
-   - **PUT** `/api/contacts/:id` – Updates a contact’s details.  
-   - **DELETE** `/api/contacts/:id` – Deletes a contact.
+- **Description**: Register a new user.
+- **Payload**:
+    
+    ```json
+    {
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "password": "password123",
+      "role": "admin"
+    }
+    
+    ```
+    
+- **Response**:
+    
+    ```json
+    {
+      "message": "User registered successfully",
+      "token": "jwt_token"
+    }
+    
+    ```
+    
 
-3. **Interactions (Calls, Orders)**  
-   - **GET** `/api/interactions` – Lists all interactions (calls/orders).  
-   - **POST** `/api/interactions` – Logs a new interaction.  
-   - **GET** `/api/interactions/:id` – Retrieves a single interaction record.  
-   - **PUT** `/api/interactions/:id` – Updates an interaction.  
-   - **DELETE** `/api/interactions/:id` – Deletes an interaction.
+### **POST /auth/login**
 
-4. **Call Planning**  
-   - **GET** `/api/leads/today` – Returns leads requiring a call today.  
-   - **GET** `/api/leads/upcoming` – Leads scheduled for upcoming calls based on set frequency.
+- **Description**: Authenticate a user and provide a JWT token.
+- **Payload**:
+    
+    ```json
+    {
+      "email": "john.doe@example.com",
+      "password": "password123"
+    }
+    
+    ```
+    
+- **Response**:
+    
+    ```json
+    {
+      "message": "Login successful",
+      "token": "jwt_token"
+    }
+    
+    ```
+    
 
-5. **Performance Tracking**  
-   - **GET** `/api/leads/performance` – Summaries of well-performing vs. underperforming accounts.  
-   - **GET** `/api/leads/revenue_contribution?days=7` – Example endpoint for revenue stats over a set timeframe.
+---
 
-> See the **controllers** or **routes** directories in the repo for exact route names, parameters, and request/response shapes.
+## 🍴 **Restaurant APIs**
+
+### **POST /leads**
+
+- **Description**: Create a new restaurant lead.
+- **Authentication**: JWT token required.
+- **Payload**:
+    
+    ```json
+    {
+      "name": "Kudla Restaurant",
+      "location": "Bangalore",
+      "cuisine_type": "Seafood",
+      "lead_status": "New"
+    }
+    
+    ```
+    
+- **Response**:
+    
+    ```json
+    {
+      "message": "Restaurant created successfully",
+      "restaurant_id": 1
+    }
+    
+    ```
+    
+
+### **GET /leads**
+
+- **Description**: Retrieve all restaurant leads.
+- **Authentication**: JWT token required.
+
+### **GET /leads/revenue_contribution**
+
+- **Description**: Get revenue contribution details for all restaurants.
+
+### **GET /leads/stats**
+
+- **Description**: Get statistical data for all restaurant leads.
+
+### **GET /leads/data**
+
+- **Description**: Get detailed statistics for restaurants.
+
+### **GET /leads/perf**
+
+- **Description**: Get account performance stats.
+
+### **GET /leads/:lead_id**
+
+- **Description**: Retrieve a specific restaurant by ID.
+
+### **GET /leads/status/:lead_status**
+
+- **Description**: Retrieve restaurants filtered by lead status.
+
+---
+
+## 📞 **Point of Contact (POC) APIs**
+
+### **POST /contacts**
+
+- **Description**: Create a new Point of Contact (POC).
+- **Authentication**: JWT token required.
+- **Payload**:
+    
+    ```json
+    {
+      "restaurant_id": 1,
+      "name": "John Doe",
+      "role": "Manager",
+      "phone_number": "+1234567890",
+      "email": "john.doe@example.com"
+    }
+    
+    ```
+    
+- **Response**:
+    
+    ```json
+    {
+      "message": "POC created successfully",
+      "poc_id": 1
+    }
+    
+    ```
+    
+
+### **GET /contacts/:rId**
+
+- **Description**: Retrieve all POCs for a specific restaurant by restaurant ID.
+
+---
+
+## 📋 **Interaction APIs**
+
+### **POST /interactions**
+
+- **Description**: Record a new interaction.
+- **Authentication**: JWT token required.
+- **Payload**:
+    
+    ```json
+    {
+      "restaurant_id": 1,
+      "interaction_title": "Follow-up Meeting",
+      "poc_id": 2,
+      "interaction_type": "Meeting",
+      "details": "Discussed the new menu options.",
+      "outcome": "Scheduled another meeting next week.",
+      "interaction_date": "2024-12-01T10:00:00Z",
+      "follow_up_date": "2024-12-08T10:00:00Z"
+    }
+    
+    ```
+    
+- **Response**:
+    
+    ```json
+    {
+      "message": "Interaction recorded successfully",
+      "interaction_id": 1
+    }
+    
+    ```
+    
+
+### **GET /interactions**
+
+- **Description**: Retrieve all interaction calls.
+
+### **GET /interactions/all**
+
+- **Description**: Retrieve all interactions.
+
+### **GET /interactions/today**
+
+- **Description**: Retrieve follow-up interactions scheduled for today.
+
+### **GET /interactions/:restaurant_id**
+
+- **Description**: Retrieve interactions for a specific restaurant by restaurant ID.
+
+---
+
+## 📦 **Order APIs**
+
+### **POST /orders**
+
+- **Description**: Place a new order.
+- **Authentication**: JWT token required.
+- **Payload**:
+    
+    ```json
+    {
+      "restaurant_id": 1,
+      "order_by": 2,
+      "order_date": "2024-12-01T10:00:00Z",
+      "order_status": "Pending",
+      "items": [
+        {
+          "item_name": "Chicken Biryani",
+          "quantity": 2,
+          "price": 250.00,
+          "instructions": "Extra spicy"
+        },
+        {
+          "item_name": "Paneer Butter Masala",
+          "quantity": 1,
+          "price": 180.00,
+          "instructions": "No onions"
+        }
+      ]
+    }
+    
+    ```
+    
+- **Response**:
+    
+    ```json
+    {
+      "message": "Order placed successfully",
+      "order_id": 1
+    }
+    
+    ```
+    
+
+### **GET /orders/trends**
+
+- **Description**: Retrieve order trends data.
+
+### **GET /orders/heatmap/:restaurant_id**
+
+- **Description**: Retrieve order counts and dates for a specific restaurant.
+
+### **GET /orders/stats**
+
+- **Description**: Retrieve general order statistics.
+
+### **GET /orders/:restaurant_id**
+
+- **Description**: Retrieve all orders for a specific restaurant.
+
+### **GET /orders/get/:order_id**
+
+- **Description**: Retrieve a specific order by order ID.
+
+---
+
+## ✅ **Sample Usage Example**
+
+### **Creating a Restaurant Lead**
+
+```bash
+POST /leads
+token : jwt_token
+Content-Type: application/json
+{
+  "name": "Kudla Restaurant",
+  "location": "Bangalore",
+  "cuisine_type": "Seafood",
+  "lead_status": "New"
+}
+
+```
+
+**Response:**
+
+```json
+{
+  "message": "Restaurant created successfully",
+  "restaurant_id": 1
+}
+
+```
+
+### **Getting All POCs for a Restaurant**
+
+```bash
+GET /contacts/1
+token: jwt_token
+
+```
+
+**Response:**
+
+```json
+[
+  {
+    "poc_id": 1,
+    "name": "John Doe",
+    "role": "Manager",
+    "phone_number": "+1234567890",
+    "email": "john.doe@example.com"
+  }
+]
+
+```
+
+---
+
+**Note**: All APIs are secured with JWT-based authentication. Ensure to include the token in the request headers for authenticated endpoints.
+
+
+
 
 ---
 
@@ -163,23 +454,23 @@ Below is a high-level overview of the main endpoints. Adjust paths/methods as ne
   curl -X POST \
        -H "Content-Type: application/json" \
        -d '{"name":"Best Bites","location":"Mumbai","cuisine_type":"Indian","lead_status":"NEW"}' \
-       http://localhost:3000/api/restaurants
+       http://localhost:3000/api/leads
   ```
 
 - **Add a New Contact**:
   ```bash
   curl -X POST \
        -H "Content-Type: application/json" \
-       -d '{"restaurantId":1,"name":"John Doe","role":"Manager","contactInfo":"9999999999"}' \
+       -d '{"restaurantId":1,"name":"John Doe","role":"Manager","phone":"9999999999", "email":"johnbhai@gmail.com"}' \
        http://localhost:3000/api/contacts
   ```
 
-- **Fetch Leads Requiring Calls Today**:
+- **Fetch Leads Requiring Calls in an Interval**:
   ```bash
-  curl -X GET http://localhost:3000/api/leads/today
+  curl -X GET http://localhost:3000/api/nteractions?fromDate=2024-12-21&toDate=2024-12-31
   ```
 
-- **Check Performance**:
+- **Check Performance for last 7 days**:
   ```bash
-  curl -X GET http://localhost:3000/api/leads/performance
+  curl -X GET http://localhost:3000/api/leads/perf?days=7
   ```
